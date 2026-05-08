@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frizeria La Cornel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- 🔥 Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+:root{--black:#0a0a0a;--dark:#111;--card:#161616;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c66a;--white:#f5f0e8;--gray:#888;--red:#c0392b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;overflow-x:hidden}
+.page{display:none;min-height:100vh;flex-direction:column}
+.page.active{display:flex}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:70px;background:rgba(10,10,10,.93);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);letter-spacing:3px;cursor:pointer;transition:opacity .2s}
+.nav-logo span{color:var(--white)}
+.nav-logo:hover{opacity:.8}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links button{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gray);background:none;border:none;cursor:pointer;transition:color .2s;padding:0}
+.nav-links button:hover{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-login{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gray);cursor:pointer;transition:color .2s;background:none;border:none;padding:0}
+.nav-login:hover{color:var(--gold)}
+.nav-cta{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:var(--gold);color:var(--black);border:none;padding:10px 20px;cursor:pointer;transition:all .2s}
+.nav-cta:hover{background:var(--gold2);transform:translateY(-1px)}
+.nav-user{display:flex;align-items:center;gap:14px}
+.nav-uname{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.btn-logout{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);background:none;border:1px solid var(--border);padding:6px 12px;cursor:pointer;transition:all .2s}
+.btn-logout:hover{color:var(--white);border-color:var(--white)}
+.hero{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding-top:70px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 60% 40%,#1a1408 0%,var(--black) 65%);min-height:100vh}
+.hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(201,168,76,.04) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(201,168,76,.04) 80px);pointer-events:none}
+.hero-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;animation:fadeUp .8s ease forwards}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(70px,14vw,180px);line-height:.95;color:var(--white);animation:fadeUp .8s .1s ease both;letter-spacing:-2px}
+.hero-title span{color:var(--gold)}
+.hero-sub{font-family:'Barlow',sans-serif;font-size:16px;font-weight:300;letter-spacing:2px;color:var(--gray);margin-top:24px;animation:fadeUp .8s .2s ease both}
+.hero-btns{display:flex;gap:14px;margin-top:44px;animation:fadeUp .8s .3s ease both}
+.btn-primary{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:var(--gold);color:var(--black);border:none;padding:15px 34px;cursor:pointer;transition:all .25s}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.25)}
+.btn-secondary{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:transparent;color:var(--white);border:1px solid var(--border);padding:15px 34px;cursor:pointer;transition:all .25s}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.section{padding:90px 80px;max-width:1400px;margin:0 auto;width:100%}
+.sec-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,78px);line-height:1;color:var(--white);margin-bottom:36px}
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:2px}
+.price-card{background:var(--card);border:1px solid var(--border);padding:34px 30px;transition:all .3s;position:relative;overflow:hidden}
+.price-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:0;background:var(--gold);transition:height .3s}
+.price-card:hover::before{height:100%}
+.price-card:hover{background:#1c1c1c}
+.pc-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:10px}
+.pc-price{font-family:'Bebas Neue',sans-serif;font-size:50px;color:var(--gold);line-height:1}
+.pc-price span{font-size:18px;color:var(--gray);font-family:'Barlow',sans-serif}
+.pc-desc{font-size:13px;color:var(--gray);margin-top:10px;line-height:1.6;font-weight:300}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:70px;background:radial-gradient(ellipse at 30% 60%,#1a1408 0%,var(--black) 60%)}
+.login-box{background:var(--card);border:1px solid var(--border);padding:56px 46px;width:100%;max-width:410px}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--gold);text-align:center;margin-bottom:6px}
+.login-logo span{color:var(--white)}
+.login-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gray);text-align:center;margin-bottom:36px}
+.login-err{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);color:#e74c3c;padding:12px 14px;font-size:13px;margin-bottom:14px;display:none}
+.login-err.show{display:block}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:7px}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--white);padding:13px 15px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .2s;border-radius:0;-webkit-appearance:none}
+.form-group select option{background:var(--dark)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.admin-layout{display:flex;min-height:100vh;padding-top:70px}
+.admin-sidebar{width:230px;background:var(--dark);border-right:1px solid var(--border);padding:36px 0;flex-shrink:0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:13px 22px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);cursor:pointer;transition:all .2s;border-left:3px solid transparent;background:none;border-right:none;border-top:none;border-bottom:none;width:100%;text-align:left;position:relative}
+.sb-item:hover{color:var(--white);background:rgba(255,255,255,.03)}
+.sb-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,.05)}
+.admin-content{flex:1;padding:44px;overflow-y:auto}
+.admin-panel{display:none}
+.admin-panel.active{display:block}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border)}
+.tbl td{padding:13px 14px;border-bottom:1px solid rgba(42,42,42,.5);color:var(--white)}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:2px}
+.badge-new{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.badge-ok{background:rgba(46,160,67,.15);color:#3fb950;border:1px solid rgba(46,160,67,.3)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:20px}
+.cal-day{background:var(--card);border:1px solid var(--border);padding:11px 9px;min-height:76px;cursor:pointer;transition:all .2s;text-align:center}
+.cal-day:hover{border-color:var(--gold);background:#1c1c1c}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal.show{display:flex}
+.modal-box{background:var(--dark);border:1px solid var(--border);padding:38px;width:100%;max-width:400px}
+.time-slot{padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;border:1px solid var(--border);cursor:pointer;transition:all .2s;color:var(--gray);background:none;margin:4px}
+.time-slot.sel{border-color:var(--red);color:#e74c3c;background:rgba(192,57,43,.1)}
+.time-slot:hover:not(.sel){border-color:var(--gold);color:var(--gold)}
+.time-slot.disabled{opacity:0.3;cursor:not-allowed;border-color:var(--border);color:var(--gray);background:var(--dark)}
+.time-slot.disabled:hover{border-color:var(--border);color:var(--gray)}
+.time-slot.available{border-color:var(--gold);color:var(--gold);background:none}
+.time-slot.available:hover{background:rgba(201,168,76,0.1)}
+.time-slot.selected{border-color:var(--gold);color:var(--black);background:var(--gold)}
+.booking-day{cursor:pointer;transition:all 0.2s}
+.booking-day:hover:not(.disabled):not(.past){background:rgba(201,168,76,0.1);border-color:var(--gold)!important}
+.booking-day.disabled{opacity:0.3;cursor:not-allowed}
+.booking-day.past{opacity:0.3;cursor:not-allowed}
+.booking-day.selected{background:rgba(201,168,76,0.2);border-color:var(--gold)!important}
+.toast{position:fixed;bottom:36px;right:36px;z-index:9999;background:var(--dark);border:1px solid var(--gold);padding:15px 22px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);transform:translateY(100px);opacity:0;transition:all .4s}
+.toast.show{transform:translateY(0);opacity:1}
+.notif-badge{position:absolute;top:8px;right:8px;background:var(--red);color:var(--white);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.alert-new{background:rgba(201,168,76,.15);border:2px solid var(--gold);padding:20px;margin-bottom:20px}
+footer{background:var(--dark);border-top:1px solid var(--border);padding:36px 80px;display:flex;justify-content:space-between;align-items:center}
+.ft-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)}
+.ft-brand span{color:var(--white)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){nav{padding:0 16px}.nav-links{display:none}.section{padding:60px 18px}.form-row{grid-template-columns:1fr}.admin-sidebar{display:none}footer{padding:20px;flex-direction:column;gap:10px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="navigateTo('home')">FRIZERIA <span>LA CORNEL</span></div>
+  <div class="nav-links">
+    <button onclick="navigateTo('home')">Acasă</button>
+    <button onclick="navigateTo('booking')">Programare</button>
+    <button onclick="navigateTo('contact')">Contact</button>
+  </div>
+  <div class="nav-right" id="navRight">
+    <button class="nav-login" onclick="navigateTo('signup')">Sign Up</button>
+    <button class="nav-login" onclick="navigateTo('login')">Login</button>
+    <button class="nav-cta" onclick="navigateTo('booking')">Programează-te</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <p class="hero-tag">✦ Barbershop Premium ✦</p>
+    <h1 class="hero-title">FRIZERIA<br><span>LA CORNEL</span></h1>
+    <p class="hero-sub">Stilul tău. Definit de noi.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="navigateTo('booking')">Fă o programare</button>
+    </div>
+  </section>
+  
+  <section class="section">
+    <p class="sec-label">✦ Servicii & Prețuri</p>
+    <h2 class="sec-title">Ce oferim</h2>
+    <div class="prices-grid">
+      <div class="price-card"><div class="pc-name">Tuns Copii</div><div class="pc-price">55 <span>LEI</span></div><div class="pc-desc">Până în 14 ani</div></div>
+      <div class="price-card"><div class="pc-name">Tuns Adulți</div><div class="pc-price">70 <span>LEI</span></div><div class="pc-desc">Tuns + contur</div></div>
+      <div class="price-card"><div class="pc-name">Tuns Special</div><div class="pc-price">80 <span>LEI</span></div><div class="pc-desc">Premium cu tratament</div></div>
+      <div class="price-card"><div class="pc-name">Barbă Scurtă</div><div class="pc-price">20 <span>LEI</span></div><div class="pc-desc">Tuns + contur</div></div>
+      <div class="price-card"><div class="pc-name">Barbă Lungă</div><div class="pc-price">40 <span>LEI</span></div><div class="pc-desc">Tuns + îngrijire</div></div>
+      <div class="price-card"><div class="pc-name">Pachet Complet</div><div class="pc-price">100 <span>LEI</span></div><div class="pc-desc">Tuns + barbă + styling</div></div>
+    </div>
+    <div style="margin-top:36px"><button class="btn-primary" onclick="navigateTo('booking')">Programează acum</button></div>
+  </section>
+  
+  <footer>
+    <div class="ft-brand">FRIZERIA <span>LA CORNEL</span></div>
+    <div style="color:var(--gray);font-size:12px">Calea 13 Septembrie 73, București</div>
+    <div style="color:var(--gray);font-size:12px">© 2024 • +40 738 037 558</div>
+  </footer>
+</div>
+
+<!-- LOGIN PAGE -->
+<div class="page" id="page-login">
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-logo">FRIZERIA <span>LA CORNEL</span></div>
+      <div class="login-sub">Conectare cont</div>
+      <div class="login-err" id="loginError">Date incorecte</div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="loginPhone" placeholder="Nr. telefon">
+      </div>
+      <div class="form-group">
+        <label>Parolă</label>
+        <input type="password" id="loginPass" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" style="width:100%" onclick="doLogin()">Intră în cont</button>
+      <p style="text-align:center;margin-top:18px;font-size:13px;color:var(--gray)">
+        Nu ai cont? 
+        <button onclick="navigateTo('signup')" style="color:var(--gold);cursor:pointer;background:none;border:none;font-size:13px">Creează cont nou</button>
+      </p>
+      <p style="text-align:center;margin-top:20px">
+        <button onclick="navigateTo('home')" style="color:var(--gray);cursor:pointer;font-size:13px;background:none;border:none">← Înapoi</button>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGN UP PAGE -->
+<div class="page" id="page-signup">
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-logo">FRIZERIA <span>LA CORNEL</span></div>
+      <div class="login-sub">Creează cont client</div>
+      <div class="login-err" id="signupError">Te rugăm completează toate câmpurile</div>
+      <div class="form-group">
+        <label>Nume complet</label>
+        <input type="text" id="signupName" placeholder="Ion Popescu">
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="signupPhone" placeholder="">
+      </div>
+      <div class="form-group">
+        <label>Parolă</label>
+        <input type="password" id="signupPass" placeholder="Minim 6 caractere">
+      </div>
+      <button class="btn-primary" style="width:100%" onclick="doSignup()">Creează cont</button>
+      <p style="text-align:center;margin-top:18px;font-size:13px;color:var(--gray)">
+        Ai deja cont? 
+        <button onclick="navigateTo('login')" style="color:var(--gold);cursor:pointer;background:none;border:none;font-size:13px">Conectează-te</button>
+      </p>
+      <p style="text-align:center;margin-top:20px">
+        <button onclick="navigateTo('home')" style="color:var(--gray);cursor:pointer;font-size:13px;background:none;border:none">← Înapoi</button>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING PAGE -->
+<div class="page" id="page-booking">
+  <div style="padding:120px 40px 60px;max-width:600px;margin:0 auto">
+    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:60px;color:var(--gold);margin-bottom:40px">Programare</h1>
+    
+    <div style="background:var(--card);border:1px solid var(--border);padding:40px">
+      <div class="form-group">
+        <label>Nume complet</label>
+        <input type="text" id="bookName" placeholder="Ion Popescu">
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="bookPhone" placeholder="">
+      </div>
+      <div class="form-group">
+        <label>Serviciu</label>
+        <select id="bookService">
+          <option value="">Alege...</option>
+          <option>Tuns Copii — 55 lei</option>
+          <option>Tuns Adulți — 70 lei</option>
+          <option>Tuns Special — 80 lei</option>
+          <option>Barbă Scurtă — 20 lei</option>
+          <option>Barbă Lungă — 40 lei</option>
+          <option>Pachet Complet — 100 lei</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Alege data și ora</label>
+        <div style="background:var(--dark);border:1px solid var(--border);padding:20px">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:15px">
+            <button type="button" class="btn-secondary" style="padding:8px 12px" onclick="changeBookingMonth(-1)">‹</button>
+            <h4 style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);flex:1;text-align:center" id="bookingMonth">MARTIE 2026</h4>
+            <button type="button" class="btn-secondary" style="padding:8px 12px" onclick="changeBookingMonth(1)">›</button>
+          </div>
+          <div class="cal-grid" id="bookingCalendar" style="margin-bottom:20px"></div>
+          <div id="bookingTimeSlots" style="display:none">
+            <p style="color:var(--gold);font-size:12px;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px">Selectează ora:</p>
+            <div id="availableTimes"></div>
+          </div>
+        </div>
+        <input type="hidden" id="bookDate">
+        <input type="hidden" id="bookTime">
+      </div>
+      <div class="form-row" style="display:none">
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="bookDateOld">
+        </div>
+        <div class="form-group">
+          <label>Ora</label>
+          <select id="bookTimeOld">
+            <option value="">Alege...</option>
+            <option>09:00</option>
+            <option>10:00</option>
+            <option>11:00</option>
+            <option>12:00</option>
+            <option>13:00</option>
+            <option>14:00</option>
+            <option>15:00</option>
+            <option>16:00</option>
+            <option>17:00</option>
+            <option>18:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Frizer</label>
+        <select id="bookBarber">
+          <option value="Oricare">Oricare</option>
+          <option>Cornel</option>
+          <option>Mihai</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="width:100%" onclick="submitBooking()">Trimite programarea</button>
+    </div>
+    
+    <p style="text-align:center;margin-top:20px">
+      <button onclick="navigateTo('home')" style="color:var(--gray);cursor:pointer;font-size:13px;background:none;border:none">← Înapoi acasă</button>
+    </p>
+  </div>
+</div>
+
+<!-- CONTACT PAGE -->
+<div class="page" id="page-contact">
+  <div style="padding:120px 40px 60px;max-width:900px;margin:0 auto">
+    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:60px;color:var(--gold);margin-bottom:10px">Contact</h1>
+    <p style="color:var(--gray);font-size:14px;margin-bottom:50px">Suntem aici pentru tine!</p>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:60px">
+      <!-- Contact Info -->
+      <div>
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);margin-bottom:30px">Informații</h3>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;gap:15px;align-items:start">
+            <div style="width:40px;height:40px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📍</div>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:5px">Adresă</div>
+              <div style="font-size:15px;color:var(--white);line-height:1.6">Frizeria La Cornel<br>Calea 13 Septembrie 73<br>București</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;gap:15px;align-items:start">
+            <div style="width:40px;height:40px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📞</div>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:5px">Telefon</div>
+              <div style="font-size:15px;color:var(--white)">+40 738 037 558 (Cornel)</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;gap:15px;align-items:start">
+            <div style="width:40px;height:40px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🕐</div>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:5px">Program</div>
+              <div style="font-size:15px;color:var(--white);line-height:1.8">
+                Luni - Vineri: 09:00 - 20:00<br>
+                Sâmbătă: 09:00 - 18:00<br>
+                <span style="color:var(--gray)">Duminică: Închis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background:var(--card);border:1px solid var(--border);padding:20px;margin-top:30px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px">💡 Sfat</div>
+          <p style="font-size:13px;color:var(--gray);line-height:1.6">Recomandăm programare în avans pentru a evita așteptarea. Poți face programare online sau sună direct!</p>
+        </div>
+      </div>
+      
+      <!-- Contact Form -->
+      <div>
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);margin-bottom:30px">Trimite-ne un mesaj</h3>
+        
+        <div style="background:var(--card);border:1px solid var(--border);padding:30px">
+          <div class="form-group">
+            <label>Nume</label>
+            <input type="text" id="contactName" placeholder="Ion Popescu">
+          </div>
+          <div class="form-group">
+            <label>Telefon</label>
+            <input type="tel" id="contactPhone" placeholder="">
+          </div>
+          <div class="form-group">
+            <label>Mesaj</label>
+            <textarea id="contactMessage" style="height:120px;resize:vertical" placeholder="Scrie-ne mesajul tău..."></textarea>
+          </div>
+          <button class="btn-primary" style="width:100%" onclick="submitContact()">Trimite mesajul</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Map placeholder -->
+    <div style="background:var(--card);border:1px solid var(--border);height:300px;display:flex;align-items:center;justify-content:center;margin-bottom:40px">
+      <div style="text-align:center">
+        <div style="font-size:40px;margin-bottom:10px">📍</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gray)">Hartă Google Maps</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:5px">Calea 13 Septembrie 73, București</div>
+      </div>
+    </div>
+    
+    <p style="text-align:center">
+      <button onclick="navigateTo('home')" style="color:var(--gray);cursor:pointer;font-size:13px;background:none;border:none">← Înapoi acasă</button>
+    </p>
+  </div>
+  
+  <footer style="background:var(--dark);border-top:1px solid var(--border);padding:30px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)">FRIZERIA <span style="color:var(--white)">LA CORNEL</span></div>
+    <div style="color:var(--gray);font-size:12px">Calea 13 Septembrie 73, București</div>
+    <div style="color:var(--gray);font-size:12px">© 2024 • +40 738 037 558</div>
+  </footer>
+</div>
+
+<!-- ADMIN PAGE -->
+<div class="page" id="page-admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <button class="sb-item" onclick="showAdminTab('bookings')" id="tabBookings">
+        <span>◈</span> Programări
+        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+      </button>
+      <button class="sb-item active" onclick="showAdminTab('calendar')" id="tabCalendar">
+        <span>◈</span> Calendar
+      </button>
+    </aside>
+    
+    <main class="admin-content">
+      <!-- BOOKINGS -->
+      <div class="admin-panel" id="panel-bookings">
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);margin-bottom:30px">Programări</h2>
+        <div id="alertNew"></div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Telefon</th>
+              <th>Serviciu</th>
+              <th>Data</th>
+              <th>Ora</th>
+              <th>Status</th>
+              <th>Acțiuni</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsList">
+            <tr><td colspan="7" style="text-align:center;color:var(--gray);padding:30px">Nicio programare</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- CALENDAR -->
+      <div class="admin-panel active" id="panel-calendar">
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);margin-bottom:10px" id="calendarWelcome">Calendar</h2>
+        <p style="color:var(--gray);font-size:13px;margin-bottom:30px">Marchează orele ocupate</p>
+        
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">
+          <button class="btn-secondary" onclick="changeCalMonth(-1)">‹ Înapoi</button>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);flex:1;text-align:center" id="calMonth">MARTIE 2026</h3>
+          <button class="btn-secondary" onclick="changeCalMonth(1)">Înainte ›</button>
+        </div>
+        
+        <div class="cal-grid" id="calendarGrid"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="timeModal">
+  <div class="modal-box">
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);margin-bottom:20px" id="modalTitle">Selectează ore</h3>
+    <div id="timeSlots"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn-primary" onclick="saveTimeSlots()">Salvează</button>
+      <button class="btn-secondary" onclick="closeModal()">Anulează</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBsr1L7G1rOBTPjoB395zIaSB_EwA7zpU0",
+  authDomain: "frizeria-la-cornel.firebaseapp.com",
+  databaseURL: "https://frizeria-la-cornel-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "frizeria-la-cornel",
+  storageBucket: "frizeria-la-cornel.firebasestorage.app",
+  messagingSenderId: "862932726654",
+  appId: "1:862932726654:web:385c08b2f471192052b92f"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+console.log("✅ Firebase conectat!");
+
+// GLOBAL STATE
+var currentUser = localStorage.getItem('user') || null;
+var currentPage = 'home';
+var calendarYear = 2026;
+var calendarMonth = 2;
+var bookingCalYear = 2026;
+var bookingCalMonth = 2;
+var selectedBookingDate = null;
+var selectedDay = null;
+var busySlots = JSON.parse(localStorage.getItem('busySlots') || '{}');
+var bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+var MONTHS = ['IANUARIE','FEBRUARIE','MARTIE','APRILIE','MAI','IUNIE','IULIE','AUGUST','SEPTEMBRIE','OCTOMBRIE','NOIEMBRIE','DECEMBRIE'];
+var STAFF = [
+  {phone:'40',pass:'cornel123',name:'CORNEL'},
+  {phone:'30',pass:'mihai123',name:'MIHAI'}
+];
+var clients = JSON.parse(localStorage.getItem('clients') || '[]');
+
+// NAVIGATION
+function navigateTo(page) {
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+  
+  var navRight = document.getElementById('navRight');
+  if (page === 'admin') {
+    navRight.innerHTML = '<div class="nav-user"><span class="nav-uname">✂ ' + currentUser + '</span><button class="btn-logout" onclick="logout()">Ieșire</button></div>';
+    updateBookingsList();
+    updateNotifications();
+  } else {
+    if (currentUser) {
+      navRight.innerHTML = '<div class="nav-user"><span class="nav-uname">' + currentUser + '</span><button class="btn-logout" onclick="logout()">Ieșire</button></div>';
+    } else {
+      navRight.innerHTML = '<button class="nav-login" onclick="navigateTo(\'signup\')">Sign Up</button><button class="nav-login" onclick="navigateTo(\'login\')">Login</button><button class="nav-cta" onclick="navigateTo(\'booking\')">Programează-te</button>';
+    }
+  }
+  
+  if (page === 'admin') {
+    renderCalendar();
+  }
+  
+  if (page === 'booking') {
+    renderBookingCalendar();
+    // Auto-fill form if user is logged in
+    autoFillBookingForm();
+  }
+  
+  window.scrollTo(0, 0);
+}
+
+// PHONE VALIDATION
+function validatePhoneNumber(phone) {
+  // Remove all non-digit characters
+  var cleaned = phone.replace(/\D/g, '');
+  
+  // Check if it starts with 07 and has exactly 10 digits
+  if (cleaned.length === 10 && cleaned.substring(0, 2) === '07') {
+    return { valid: true, cleaned: cleaned };
+  }
+  
+  // Check if it has 11 digits and starts with 07 (some networks)
+  if (cleaned.length === 11 && cleaned.substring(0, 2) === '07') {
+    return { valid: true, cleaned: cleaned };
+  }
+  
+  // Check if it starts with +407 and convert
+  if (cleaned.length === 11 && cleaned.substring(0, 3) === '407') {
+    return { valid: true, cleaned: '0' + cleaned.substring(2) };
+  }
+  
+  if (cleaned.length === 12 && cleaned.substring(0, 4) === '4007') {
+    return { valid: true, cleaned: '0' + cleaned.substring(3) };
+  }
+  
+  // Check if starts with +40 (12 digits total)
+  if (cleaned.length === 12 && cleaned.substring(0, 2) === '40') {
+    var withoutCountry = '0' + cleaned.substring(2);
+    if (withoutCountry.substring(0, 2) === '07') {
+      return { valid: true, cleaned: withoutCountry };
+    }
+  }
+  
+  return { valid: false, cleaned: cleaned };
+}
+
+// LOGIN
+function doLogin() {
+  var phone = document.getElementById('loginPhone').value.replace(/\D/g,'');
+  var pass = document.getElementById('loginPass').value;
+  
+  if (!phone || !pass) {
+    document.getElementById('loginError').textContent = 'Completează ambele câmpuri!';
+    document.getElementById('loginError').classList.add('show');
+    return;
+  }
+  
+  var user = null;
+  
+  // Check staff first (special codes 40 and 30)
+  for (var i = 0; i < STAFF.length; i++) {
+    if (STAFF[i].phone.replace(/\D/g,'') === phone && STAFF[i].pass === pass) {
+      user = STAFF[i];
+      currentUser = user.name;
+      localStorage.setItem('user', user.name);
+      localStorage.setItem('userType', 'staff');
+      document.getElementById('calendarWelcome').textContent = 'Bun venit, ' + user.name;
+      showToast('Bun venit!');
+      navigateTo('admin');
+      return;
+    }
+  }
+  
+  // Check clients
+  var phoneValidation = validatePhoneNumber(phone);
+  var cleanedPhone = phoneValidation.valid ? phoneValidation.cleaned : phone;
+  
+  for (var i = 0; i < clients.length; i++) {
+    if (clients[i].phone === cleanedPhone && clients[i].password === pass) {
+      user = clients[i];
+      currentUser = user.name;
+      localStorage.setItem('user', user.name);
+      localStorage.setItem('userType', 'client');
+      showToast('Bun venit, ' + user.name + '!');
+      navigateTo('booking');
+      return;
+    }
+  }
+  
+  // No match found
+  document.getElementById('loginError').textContent = 'Număr de telefon sau parolă incorectă!';
+  document.getElementById('loginError').classList.add('show');
+}
+
+// SIGN UP
+function doSignup() {
+  var name = document.getElementById('signupName').value.trim();
+  var phone = document.getElementById('signupPhone').value.trim();
+  var pass = document.getElementById('signupPass').value;
+  
+  if (!name || !phone || !pass) {
+    document.getElementById('signupError').textContent = 'Completează toate câmpurile!';
+    document.getElementById('signupError').classList.add('show');
+    return;
+  }
+  
+  // Validate phone number
+  var phoneValidation = validatePhoneNumber(phone);
+  if (!phoneValidation.valid) {
+    document.getElementById('signupError').textContent = 'Număr de telefon invalid! Folosește format: 07XXXXXXXX';
+    document.getElementById('signupError').classList.add('show');
+    return;
+  }
+  
+  var cleanedPhone = phoneValidation.cleaned;
+  
+  if (pass.length < 6) {
+    document.getElementById('signupError').textContent = 'Parola trebuie să aibă minim 6 caractere!';
+    document.getElementById('signupError').classList.add('show');
+    return;
+  }
+  
+  // Check if phone already exists
+  for (var i = 0; i < clients.length; i++) {
+    if (clients[i].phone === cleanedPhone) {
+      document.getElementById('signupError').textContent = 'Numărul de telefon este deja înregistrat!';
+      document.getElementById('signupError').classList.add('show');
+      return;
+    }
+  }
+  
+  var newClient = {
+    name: name,
+    phone: cleanedPhone,
+    password: pass,
+    created: new Date().toISOString()
+  };
+  
+  clients.push(newClient);
+  localStorage.setItem('clients', JSON.stringify(clients));
+  
+  currentUser = name;
+  localStorage.setItem('user', name);
+  localStorage.setItem('userType', 'client');
+  
+  showToast('✓ Cont creat cu succes!');
+  navigateTo('booking');
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('user');
+  localStorage.removeItem('userType');
+  navigateTo('home');
+  showToast('Deconectat!');
+}
+
+// BOOKING
+function submitBooking() {
+  var name = document.getElementById('bookName').value;
+  var phone = document.getElementById('bookPhone').value;
+  var service = document.getElementById('bookService').value;
+  var date = document.getElementById('bookDate').value;
+  var time = document.getElementById('bookTime').value;
+  var barber = document.getElementById('bookBarber').value;
+  
+  if (!name || !phone || !service || !date || !time) {
+    showToast('Completează toate câmpurile!');
+    return;
+  }
+  
+  // Validate phone number
+  var phoneValidation = validatePhoneNumber(phone);
+  if (!phoneValidation.valid) {
+    showToast('Număr invalid! Format: 07XXXXXXXX');
+    return;
+  }
+  
+  var booking = {
+    id: Date.now(),
+    name: name,
+    phone: phoneValidation.cleaned,
+    service: service,
+    date: date,
+    time: time,
+    barber: barber,
+    status: 'nou',
+    timestamp: new Date().toISOString()
+  };
+  
+  bookings.push(booking);
+  localStorage.setItem('bookings', JSON.stringify(bookings));
+  
+  showToast('✓ Programare trimisă!');
+  
+  // Don't clear name and phone if user is logged in
+  var userType = localStorage.getItem('userType');
+  if (userType !== 'client') {
+    document.getElementById('bookName').value = '';
+    document.getElementById('bookPhone').value = '';
+  }
+  
+  document.getElementById('bookService').selectedIndex = 0;
+  document.getElementById('bookDate').value = '';
+  document.getElementById('bookTime').value = '';
+  document.getElementById('bookBarber').selectedIndex = 0;
+  selectedBookingDate = null;
+  document.getElementById('bookingTimeSlots').style.display = 'none';
+  renderBookingCalendar();
+}
+
+// AUTO-FILL BOOKING FORM
+function autoFillBookingForm() {
+  var userType = localStorage.getItem('userType');
+  
+  if (userType === 'client' && currentUser) {
+    // Find client data
+    for (var i = 0; i < clients.length; i++) {
+      if (clients[i].name === currentUser) {
+        var nameInput = document.getElementById('bookName');
+        var phoneInput = document.getElementById('bookPhone');
+        
+        if (nameInput && phoneInput) {
+          nameInput.value = clients[i].name;
+          phoneInput.value = clients[i].phone;
+          
+          // Make fields readonly and add visual indicator
+          nameInput.style.background = 'rgba(201,168,76,0.05)';
+          phoneInput.style.background = 'rgba(201,168,76,0.05)';
+          nameInput.style.borderColor = 'rgba(201,168,76,0.3)';
+          phoneInput.style.borderColor = 'rgba(201,168,76,0.3)';
+        }
+        break;
+      }
+    }
+  }
+}
+
+// BOOKING CALENDAR
+function renderBookingCalendar() {
+  var cal = document.getElementById('bookingCalendar');
+  if (!cal) return;
+  
+  document.getElementById('bookingMonth').textContent = MONTHS[bookingCalMonth] + ' ' + bookingCalYear;
+  
+  var html = '';
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  var firstDay = new Date(bookingCalYear, bookingCalMonth, 1);
+  var dow = firstDay.getDay();
+  if (dow === 0) dow = 7;
+  
+  var daysInMonth = new Date(bookingCalYear, bookingCalMonth + 1, 0).getDate();
+  
+  for (var i = 1; i < dow; i++) {
+    html += '<div></div>';
+  }
+  
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateKey = bookingCalYear + '-' + bookingCalMonth + '-' + d;
+    var cellDate = new Date(bookingCalYear, bookingCalMonth, d);
+    var isPast = cellDate < today;
+    var slots = busySlots[dateKey] || [];
+    var isFullyBooked = slots.length >= 10; // All 10 time slots taken
+    
+    var classes = 'cal-day booking-day';
+    var style = 'background:var(--card);border:1px solid var(--border);';
+    
+    if (isPast) {
+      classes += ' past';
+    } else if (isFullyBooked) {
+      classes += ' disabled';
+      style += 'background:rgba(192,57,43,0.1);';
+    } else if (slots.length > 0) {
+      style += 'background:rgba(201,168,76,0.05);';
+    }
+    
+    if (selectedBookingDate === dateKey) {
+      classes += ' selected';
+    }
+    
+    var onclick = (isPast || isFullyBooked) ? '' : 'onclick="selectBookingDay(\'' + dateKey + '\')"';
+    
+    html += '<div class="' + classes + '" style="' + style + '" ' + onclick + '>';
+    html += '<div style="font-size:16px;font-weight:600;color:var(--white)">' + d + '</div>';
+    if (isFullyBooked) {
+      html += '<div style="font-size:9px;color:#e74c3c;margin-top:3px">COMPLET</div>';
+    } else if (slots.length > 0) {
+      html += '<div style="font-size:9px;color:var(--gold);margin-top:3px">' + (10 - slots.length) + ' locuri</div>';
+    }
+    html += '</div>';
+  }
+  
+  cal.innerHTML = html;
+}
+
+function changeBookingMonth(dir) {
+  bookingCalMonth += dir;
+  if (bookingCalMonth > 11) {
+    bookingCalMonth = 0;
+    bookingCalYear++;
+  }
+  if (bookingCalMonth < 0) {
+    bookingCalMonth = 11;
+    bookingCalYear--;
+  }
+  selectedBookingDate = null;
+  document.getElementById('bookingTimeSlots').style.display = 'none';
+  renderBookingCalendar();
+}
+
+function selectBookingDay(dateKey) {
+  selectedBookingDate = dateKey;
+  renderBookingCalendar();
+  
+  var parts = dateKey.split('-');
+  var year = parts[0];
+  var month = parts[1];
+  var day = parts[2];
+  
+  var formattedDate = year + '-' + (parseInt(month) < 9 ? '0' : '') + (parseInt(month) + 1) + '-' + (parseInt(day) < 10 ? '0' : '') + day;
+  document.getElementById('bookDate').value = formattedDate;
+  
+  // Show available times
+  var busyTimes = busySlots[dateKey] || [];
+  var allTimes = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+  
+  var html = '';
+  for (var i = 0; i < allTimes.length; i++) {
+    var t = allTimes[i];
+    var isBusy = busyTimes.indexOf(t) >= 0;
+    var classes = 'time-slot';
+    
+    if (isBusy) {
+      classes += ' disabled';
+      html += '<button class="' + classes + '" disabled>' + t + '</button>';
+    } else {
+      classes += ' available';
+      html += '<button class="' + classes + '" onclick="selectBookingTime(\'' + t + '\')">' + t + '</button>';
+    }
+  }
+  
+  document.getElementById('availableTimes').innerHTML = html;
+  document.getElementById('bookingTimeSlots').style.display = 'block';
+}
+
+function selectBookingTime(time) {
+  document.getElementById('bookTime').value = time;
+  
+  // Update visual selection
+  var buttons = document.querySelectorAll('#availableTimes .time-slot');
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove('selected');
+    if (buttons[i].textContent === time) {
+      buttons[i].classList.add('selected');
+    }
+  }
+  
+  showToast('✓ ' + time + ' selectat');
+}
+
+// ADMIN TABS
+function showAdminTab(tab) {
+  document.querySelectorAll('.admin-panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.querySelectorAll('.sb-item').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('tab-' + (tab === 'bookings' ? 'Bookings' : 'Calendar')).classList.add('active');
+  
+  if (tab === 'bookings') {
+    updateBookingsList();
+    localStorage.setItem('lastCheck', Date.now());
+    updateNotifications();
+  }
+}
+
+// BOOKINGS LIST
+function updateBookingsList() {
+  var tbody = document.getElementById('bookingsList');
+  var alertDiv = document.getElementById('alertNew');
+  
+  var newOnes = bookings.filter(function(b) { return b.status === 'nou'; });
+  
+  if (newOnes.length > 0) {
+    alertDiv.innerHTML = '<div class="alert-new"><strong style="font-family:Bebas Neue;font-size:20px;color:var(--gold)">🔔 ' + newOnes.length + ' programări noi!</strong><p style="color:var(--gray);font-size:13px;margin-top:5px">Confirmă programările mai jos</p></div>';
+  } else {
+    alertDiv.innerHTML = '';
+  }
+  
+  if (bookings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:30px">Nicio programare</td></tr>';
+    return;
+  }
+  
+  var html = '';
+  var sorted = bookings.slice().reverse();
+  
+  for (var i = 0; i < sorted.length; i++) {
+    var b = sorted[i];
+    var statusBadge = b.status === 'nou' 
+      ? '<span class="badge badge-new">NOU</span>' 
+      : '<span class="badge badge-ok">Confirmat</span>';
+    
+    var actions = '';
+    if (b.status === 'nou') {
+      actions = '<button onclick="confirmBooking(' + b.id + ')" style="color:#3fb950;cursor:pointer;font-size:12px;background:none;border:none;margin-right:8px">✓</button>';
+    }
+    actions += '<button onclick="deleteBooking(' + b.id + ')" style="color:#e74c3c;cursor:pointer;font-size:12px;background:none;border:none">✕</button>';
+    
+    html += '<tr' + (b.status === 'nou' ? ' style="background:rgba(201,168,76,0.05)"' : '') + '>';
+    html += '<td>' + b.name + '</td>';
+    html += '<td>' + b.phone + '</td>';
+    html += '<td>' + b.service + '</td>';
+    html += '<td>' + b.date + '</td>';
+    html += '<td>' + b.time + '</td>';
+    html += '<td>' + statusBadge + '</td>';
+    html += '<td>' + actions + '</td>';
+    html += '</tr>';
+  }
+  
+  tbody.innerHTML = html;
+}
+
+function confirmBooking(id) {
+  for (var i = 0; i < bookings.length; i++) {
+    if (bookings[i].id === id) {
+      bookings[i].status = 'confirmat';
+      break;
+    }
+  }
+  localStorage.setItem('bookings', JSON.stringify(bookings));
+  updateBookingsList();
+  updateNotifications();
+  showToast('✓ Confirmat!');
+}
+
+function deleteBooking(id) {
+  bookings = bookings.filter(function(b) { return b.id !== id; });
+  localStorage.setItem('bookings', JSON.stringify(bookings));
+  updateBookingsList();
+  updateNotifications();
+  showToast('Șters!');
+}
+
+function updateNotifications() {
+  var lastCheck = parseInt(localStorage.getItem('lastCheck') || '0');
+  var count = 0;
+  
+  for (var i = 0; i < bookings.length; i++) {
+    if (bookings[i].status === 'nou' && new Date(bookings[i].timestamp).getTime() > lastCheck) {
+      count++;
+    }
+  }
+  
+  var badge = document.getElementById('notifBadge');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// CALENDAR
+function renderCalendar() {
+  document.getElementById('calMonth').textContent = MONTHS[calendarMonth] + ' ' + calendarYear;
+  
+  var grid = document.getElementById('calendarGrid');
+  var html = '';
+  
+  var firstDay = new Date(calendarYear, calendarMonth, 1);
+  var dow = firstDay.getDay();
+  if (dow === 0) dow = 7;
+  
+  var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  
+  for (var i = 1; i < dow; i++) {
+    html += '<div></div>';
+  }
+  
+  for (var d = 1; d <= daysInMonth; d++) {
+    var key = calendarYear + '-' + calendarMonth + '-' + d;
+    var slots = busySlots[key] || [];
+    var bgColor = slots.length >= 8 ? 'rgba(192,57,43,0.2)' : (slots.length > 0 ? 'rgba(201,168,76,0.1)' : 'var(--card)');
+    
+    html += '<div class="cal-day" style="background:' + bgColor + '" onclick="openDayModal(' + d + ')">';
+    html += '<div style="font-size:18px;font-weight:600">' + d + '</div>';
+    if (slots.length > 0) {
+      html += '<div style="font-size:10px;color:var(--gold);margin-top:5px">' + slots.length + ' ocupate</div>';
+    }
+    html += '</div>';
+  }
+  
+  grid.innerHTML = html;
+}
+
+function changeCalMonth(dir) {
+  calendarMonth += dir;
+  if (calendarMonth > 11) {
+    calendarMonth = 0;
+    calendarYear++;
+  }
+  if (calendarMonth < 0) {
+    calendarMonth = 11;
+    calendarYear--;
+  }
+  renderCalendar();
+}
+
+function openDayModal(day) {
+  selectedDay = calendarYear + '-' + calendarMonth + '-' + day;
+  document.getElementById('modalTitle').textContent = day + ' ' + MONTHS[calendarMonth];
+  
+  var times = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+  var selected = busySlots[selectedDay] || [];
+  
+  var html = '';
+  for (var i = 0; i < times.length; i++) {
+    var isSelected = selected.indexOf(times[i]) >= 0;
+    html += '<button class="time-slot' + (isSelected ? ' sel' : '') + '" onclick="toggleTime(this)">' + times[i] + '</button>';
+  }
+  
+  document.getElementById('timeSlots').innerHTML = html;
+  document.getElementById('timeModal').classList.add('show');
+}
+
+function toggleTime(btn) {
+  btn.classList.toggle('sel');
+}
+
+function saveTimeSlots() {
+  var selected = [];
+  var buttons = document.querySelectorAll('.time-slot.sel');
+  
+  for (var i = 0; i < buttons.length; i++) {
+    selected.push(buttons[i].textContent);
+  }
+  
+  if (selected.length === 0) {
+    delete busySlots[selectedDay];
+  } else {
+    busySlots[selectedDay] = selected;
+  }
+  
+  localStorage.setItem('busySlots', JSON.stringify(busySlots));
+  closeModal();
+  renderCalendar();
+  showToast('✓ Salvat!');
+}
+
+function closeModal() {
+  document.getElementById('timeModal').classList.remove('show');
+}
+
+// TOAST
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// CONTACT FORM
+function submitContact() {
+  var name = document.getElementById('contactName').value.trim();
+  var phone = document.getElementById('contactPhone').value.trim();
+  var message = document.getElementById('contactMessage').value.trim();
+  
+  if (!name || !phone || !message) {
+    showToast('Completează toate câmpurile!');
+    return;
+  }
+  
+  // Validate phone
+  var phoneValidation = validatePhoneNumber(phone);
+  if (!phoneValidation.valid) {
+    showToast('Număr invalid! Format: 07XXXXXXXX');
+    return;
+  }
+  
+  // Save contact message to localStorage
+  var contacts = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+  contacts.push({
+    name: name,
+    phone: phoneValidation.cleaned,
+    message: message,
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('contactMessages', JSON.stringify(contacts));
+  
+  showToast('✓ Mesaj trimis! Te vom contacta în curând.');
+  
+  // Clear form
+  document.getElementById('contactName').value = '';
+  document.getElementById('contactPhone').value = '';
+  document.getElementById('contactMessage').value = '';
+}
+
+// INIT
+(function() {
+  var today = new Date();
+  var dateInput = document.getElementById('bookDateOld');
+  if (dateInput) {
+    dateInput.min = today.toISOString().split('T')[0];
+  }
+  
+  // Set booking calendar to current month
+  bookingCalYear = today.getFullYear();
+  bookingCalMonth = today.getMonth();
+  
+  if (currentUser) {
+    var userType = localStorage.getItem('userType');
+    if (userType === 'staff') {
+      navigateTo('admin');
+    } else {
+      // Client is logged in, just show their name in nav
+      navigateTo('home');
+    }
+  }
+  
+  document.getElementById('timeModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  
+  // Hide login/signup errors when typing
+  var loginPhone = document.getElementById('loginPhone');
+  var loginPass = document.getElementById('loginPass');
+  if (loginPhone && loginPass) {
+    loginPhone.addEventListener('input', function() {
+      document.getElementById('loginError').classList.remove('show');
+    });
+    loginPass.addEventListener('input', function() {
+      document.getElementById('loginError').classList.remove('show');
+    });
+  }
+  
+  var signupInputs = ['signupName', 'signupPhone', 'signupPass'];
+  signupInputs.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', function() {
+        document.getElementById('signupError').classList.remove('show');
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>
